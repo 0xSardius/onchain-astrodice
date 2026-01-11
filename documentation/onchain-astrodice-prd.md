@@ -67,7 +67,7 @@ This creates **1,728 unique combinations** (12 × 12 × 12).
 ```
 [LOAD]
 ├── Quick Auth → get FID (Farcaster ID)
-├── Fetch recent readings (<24h from KV store)
+├── Fetch recent readings (<24h from database)
 ├── sdk.actions.ready() → hide splash
 └── Wallet auto-connected via Wagmi connector
 
@@ -108,9 +108,9 @@ This creates **1,728 unique combinations** (12 × 12 × 12).
 [MINT FLOW]
 ├── Preview NFT artwork (Planet palette + Sign pattern + House glyph)
 ├── Metadata includes: question, result, interpretation (if purchased), timestamp, FID
-├── Confirm transaction on Base
+├── Confirm transaction on Base via Thirdweb
 ├── Success state
-└── [View on Zora] | [Share] | [New Question]
+└── [View on OpenSea/Basescan] | [Share] | [New Question]
 
 [SHARE FLOW]
 ├── Compose cast with:
@@ -119,8 +119,8 @@ This creates **1,728 unique combinations** (12 × 12 × 12).
 └── Opens in Farcaster composer via sdk.actions.composeCast()
 
 [COLLECTION VIEW]
-├── Section: Minted Readings (permanent, queried from chain)
-├── Section: Recent Readings (unminted, <24h, from KV store)
+├── Section: Minted Readings (permanent, queried from chain/database)
+├── Section: Recent Readings (unminted, <24h, from database)
 └── Tap any reading to expand → full details + re-mint option
 
 [COMMUNITY FEED]
@@ -185,39 +185,61 @@ const { sendTransaction } = useSendTransaction();
 
 ## Data Architecture
 
-### Ephemeral Readings (Vercel KV)
+### Readings Database (Neon Postgres)
 
+**Schema:**
+
+```sql
+-- Users table (synced from Farcaster)
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  fid INTEGER UNIQUE NOT NULL,
+  username VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Readings table
+CREATE TABLE readings (
+  id SERIAL PRIMARY KEY,
+  user_fid INTEGER REFERENCES users(fid),
+  question TEXT NOT NULL,
+  planet VARCHAR(50) NOT NULL,
+  sign VARCHAR(50) NOT NULL,
+  house INTEGER NOT NULL,
+  ai_reading TEXT,
+  extended_reading TEXT,
+  is_minted BOOLEAN DEFAULT FALSE,
+  token_id INTEGER,
+  tx_hash VARCHAR(66),
+  created_at TIMESTAMP DEFAULT NOW(),
+  expires_at TIMESTAMP -- NULL if minted, 24h from creation if not
+);
+
+-- Index for common queries
+CREATE INDEX idx_readings_user ON readings(user_fid);
+CREATE INDEX idx_readings_minted ON readings(is_minted);
+CREATE INDEX idx_readings_expires ON readings(expires_at);
 ```
-Key: readings:{fid}:{timestamp}
-Value: {
-  question: string,
-  result: {
-    planet: string,
-    sign: string,
-    house: number
-  },
-  aiReading?: string,
-  extendedReading?: string,
-  createdAt: number,
-  paid: boolean
-}
-TTL: 24 hours
-Max per user: 5 (rolling, oldest drops when exceeded)
-```
 
-**Rationale:**
+**Reading lifecycle:**
 
-- Zero infrastructure for casual rolls
-- 24-hour buffer gives users time to decide to mint
-- Creates gentle urgency without being aggressive
-- Matches divination psychology (readings are moments)
+- On roll: Insert with `expires_at = NOW() + 24 hours`
+- On mint: Set `is_minted = true`, `expires_at = NULL`, store `token_id` and `tx_hash`
+- Cleanup job: Delete unminted readings where `expires_at < NOW()`
+
+**Why Postgres over KV:**
+
+- Relational queries for community feed (joins with social graph)
+- Trait exploration queries (GROUP BY planet/sign/house)
+- Better analytics capabilities
+- More flexible schema for future features
 
 ### Permanent Readings (Onchain)
 
-- Minted as NFTs on Base via Zora Protocol
+- Minted as NFTs on Base via Thirdweb
 - Token ID maps to metadata URI (IPFS)
-- Query via Zora API or direct contract reads
-- Includes full interpretation if purchased
+- Query via Thirdweb SDK or direct contract reads
+- Database `readings` table serves as index/cache
 
 ---
 
@@ -332,8 +354,8 @@ Avoid: Generic horoscope language, doom/gloom, definitive predictions.
 | **Wallet**        | @farcaster/miniapp-wagmi-connector + Wagmi | Wallet connection & transactions     |
 | **AI**            | Vercel AI SDK (Claude Sonnet or GPT-4)     | Reading interpretation               |
 | **Chain**         | Base                                       | Low-cost L2 with Farcaster alignment |
-| **NFT Protocol**  | Zora Creator Toolkit                       | Minting infrastructure               |
-| **KV Storage**    | Vercel KV (or Upstash)                     | Ephemeral reading storage            |
+| **NFT Protocol**  | Thirdweb Contracts                         | Minting infrastructure               |
+| **Database**      | Neon (Serverless Postgres)                 | Reading storage & queries            |
 | **Social Data**   | Neynar API                                 | Farcaster social graph queries       |
 | **Styling**       | Tailwind CSS                               | UI styling                           |
 | **Deployment**    | Vercel                                     | Hosting & edge functions             |
@@ -384,7 +406,7 @@ Based on successful Farcaster miniapp patterns (Protardio, QRCoin):
 - [ ] Self-interpretation reference guide (from corpus)
 - [ ] AI reading generation ($2)
 - [ ] Extended reading add-on ($1)
-- [ ] Mint reading as NFT on Base via Zora
+- [ ] Mint reading as NFT on Base via Thirdweb
 - [ ] Reading collection view (minted + recent unminted)
 - [ ] Share to Farcaster (text + image card)
 - [ ] Community feed (follows' readings via Neynar)
@@ -431,7 +453,8 @@ Based on successful Farcaster miniapp patterns (Protardio, QRCoin):
 - [ ] Dice rolling logic (client-side RNG)
 - [ ] Result display with keywords
 - [ ] Self-interpretation guide component
-- [ ] Vercel KV integration for reading storage
+- [ ] Neon Postgres setup and schema
+- [ ] Reading CRUD operations
 
 ### Phase 3: AI Integration (Week 3)
 
@@ -443,10 +466,10 @@ Based on successful Farcaster miniapp patterns (Protardio, QRCoin):
 
 ### Phase 4: NFT & Minting (Week 4)
 
-- [ ] Zora contract deployment on Base
+- [ ] Thirdweb contract deployment on Base
 - [ ] NFT visual generation system (SVG composition)
 - [ ] IPFS metadata upload
-- [ ] Mint transaction flow
+- [ ] Mint transaction flow via Thirdweb SDK
 
 ### Phase 5: Social & Polish (Week 5)
 
@@ -479,9 +502,9 @@ Based on successful Farcaster miniapp patterns (Protardio, QRCoin):
 ### External Dependencies
 
 - [ ] Neynar API key
-- [ ] Zora contract deployment
+- [ ] Thirdweb account and contract deployment
+- [ ] Neon database provisioning
 - [ ] IPFS/Arweave for metadata storage
-- [ ] Vercel KV provisioning
 
 ### Decisions to Finalize
 
