@@ -1,65 +1,89 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useConnect, useAccount } from "wagmi";
+import { sdk } from "@/lib/farcaster/sdk";
 
 export default function Home() {
+  const [question, setQuestion] = useState("");
+  const [isReady, setIsReady] = useState(false);
+  const { connect, connectors } = useConnect();
+  const { isConnected } = useAccount();
+
+  // Initialize Farcaster SDK and auto-connect wallet
+  useEffect(() => {
+    const init = async () => {
+      try {
+        // Signal app is ready to Farcaster
+        await sdk.actions.ready();
+
+        // Auto-connect wallet via Farcaster connector
+        if (!isConnected && connectors.length > 0) {
+          connect({ connector: connectors[0] });
+        }
+
+        setIsReady(true);
+      } catch (error) {
+        // Not in Farcaster context, still allow usage
+        console.log("Not in Farcaster miniapp context");
+        setIsReady(true);
+      }
+    };
+    init();
+  }, [connect, connectors, isConnected]);
+
+  const handleRoll = () => {
+    if (!question.trim()) return;
+    // TODO: Implement dice rolling in Phase 2
+    console.log("Rolling dice for question:", question);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-9rem)] px-4">
+      <div className="w-full max-w-md space-y-8 text-center">
+        {/* Cosmic intro */}
+        <div className="space-y-3">
+          <div className="text-5xl mb-4">&#x1F52E;</div>
+          <h2 className="text-2xl font-semibold text-white">
+            What question do you bring to the stars?
+          </h2>
+          <p className="text-white/60 text-sm">
+            The cosmic dice will reveal Planet, Sign, and House to illuminate
+            your path.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Question input */}
+        <div className="space-y-4">
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask about love, career, decisions, or whatever weighs on your heart..."
+            className="w-full h-28 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent resize-none"
+            maxLength={280}
+          />
+          <div className="text-xs text-white/40 text-right">
+            {question.length}/280
+          </div>
         </div>
-      </main>
+
+        {/* Roll button */}
+        <button
+          onClick={handleRoll}
+          disabled={!question.trim() || !isReady}
+          className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-lg shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          <span className="mr-2">&#x2728;</span>
+          Cast the Dice
+        </button>
+
+        {/* Info text */}
+        <p className="text-xs text-white/40">
+          Free roll includes Planet + Sign + House with keywords.
+          <br />
+          AI-powered interpretation available for $2.
+        </p>
+      </div>
     </div>
   );
 }
