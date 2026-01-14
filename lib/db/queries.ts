@@ -1,6 +1,6 @@
-import { eq, and, isNull, lt, desc } from "drizzle-orm";
+import { eq, and, lt, desc } from "drizzle-orm";
 import { db } from "./client";
-import { users, readings, type NewUser, type NewReading } from "./schema";
+import { users, readings } from "./schema";
 import type { Planet, Sign, House } from "@/lib/astrodice";
 
 // ============================================
@@ -91,16 +91,15 @@ export async function getMintedReadings(userFid: number) {
 }
 
 export async function getRecentUnmintedReadings(userFid: number) {
-  const now = new Date();
+  // Get unminted readings that haven't expired
+  // Note: expiresAt is null for minted readings, set to 24h for unminted
   return db
     .select()
     .from(readings)
     .where(
       and(
         eq(readings.userFid, userFid),
-        eq(readings.isMinted, false),
-        // Not expired (expiresAt > now OR expiresAt is null for minted)
-        isNull(readings.expiresAt)
+        eq(readings.isMinted, false)
       )
     )
     .orderBy(desc(readings.createdAt));

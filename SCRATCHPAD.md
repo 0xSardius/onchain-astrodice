@@ -4,9 +4,42 @@ Progress tracking for Onchain Astrodice development.
 
 ---
 
-## Current Phase: 2 - Core Loop (COMPLETE)
+## Current Status: Testing Phase 2
 
-### Phase 1 - Foundation (COMPLETE)
+### Test Results (2026-01-12)
+- [x] **Lint**: Clean (0 errors, 0 warnings)
+- [x] **Build**: Passes successfully
+- [x] **Dev server**: Running at http://localhost:3000
+- [x] **Environment**: All keys configured (.env)
+
+### Manual Testing Checklist
+- [ ] Home page loads with cosmic background
+- [ ] Question input works (character counter)
+- [ ] "Cast the Dice" button triggers roll
+- [ ] Dice animation shows (2.5s)
+- [ ] Result displays with Planet/Sign/House
+- [ ] Keywords display correctly
+- [ ] Interpretation guide expands/collapses
+- [ ] "Ask Again" resets to input
+- [ ] Navigation works (Collection, Community placeholders)
+
+### API Testing (requires database migration)
+```bash
+# Test auth endpoint
+curl -X POST http://localhost:3000/api/auth \
+  -H "Content-Type: application/json" \
+  -d '{"token": "eyJ..."}'
+
+# Test create reading
+curl -X POST http://localhost:3000/api/readings \
+  -H "Authorization: Bearer eyJ..." \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Test?", "planet": "Mars", "sign": "Aries", "house": 1}'
+```
+
+---
+
+## Phase 1 - Foundation (COMPLETE)
 - [x] Project scaffold (Next.js 16, TypeScript, Tailwind v4)
 - [x] CLAUDE.md + IMPLEMENTATION_PLAN.md
 - [x] Farcaster SDK + Wagmi dependencies
@@ -14,7 +47,7 @@ Progress tracking for Onchain Astrodice development.
 - [x] Cosmic UI shell (background, header, nav)
 - [x] Home screen with question input
 
-### Phase 2 - Core Loop (COMPLETE)
+## Phase 2 - Core Loop (COMPLETE)
 - [x] Install Neon + Drizzle ORM
 - [x] Astrodice types (Planet, Sign, House)
 - [x] Constants with all 36 elements + meanings/keywords
@@ -27,106 +60,111 @@ Progress tracking for Onchain Astrodice development.
 - [x] Lazy DB client (avoids build-time errors)
 - [x] Reading CRUD API routes
 - [x] Auth API route
+- [x] Fixed lint warnings
 
-### Ready for Phase 3
-Phase 3: AI Integration
-- Vercel AI SDK setup
-- Interpretation prompt engineering
-- Base reading generation ($2)
-- Extended reading generation (+$1)
-- Payment flow (ETH/USDC on Base)
+## Phase 3 - AI Integration (READY)
+Environment configured:
+- [x] DATABASE_URL set
+- [x] ANTHROPIC_API_KEY set
+- [x] NEYNAR_API_KEY set
+
+Next steps:
+- [ ] Run database migration (0001_initial.sql)
+- [ ] Install AI SDK: `pnpm add ai @ai-sdk/anthropic`
+- [ ] Create lib/ai/prompts.ts
+- [ ] Create lib/ai/generate.ts
+- [ ] Create /api/ai/reading route
+- [ ] Wire up "Get AI Reading" button with payment
+
+---
+
+## Environment Setup (COMPLETE)
+
+```env
+NEYNAR_API_KEY=✓ configured
+DATABASE_URL=✓ configured (Neon Postgres)
+ANTHROPIC_API_KEY=✓ configured
+```
+
+### Database Migration Required
+Run this SQL on your Neon console before testing API routes:
+```sql
+-- See lib/db/migrations/0001_initial.sql
+```
 
 ---
 
 ## Session Log
 
+### 2026-01-12
+- Ran lint: fixed 4 warnings (unused vars)
+- Ran build: passes successfully
+- Started dev server: http://localhost:3000
+- Verified environment variables configured
+- Ready for manual testing
+
 ### 2026-01-11
 - **Phase 1:** Foundation complete
 - **Phase 2:** Core Loop complete
-  - Created lib/astrodice/ with types, constants (36 elements), roll logic
-  - Built dice UI: DiceAnimation, DiceResult, InterpretationGuide
-  - Updated home page with full roll flow (input → animation → result)
-  - Created lib/db/ with Drizzle schema, lazy client, queries
-  - Created API routes: /api/auth, /api/readings, /api/readings/[id]
-  - Fixed lazy DB initialization for build compatibility
 
 ---
 
-## Files Created (Phase 2)
+## Files Structure
 
 ```
-lib/astrodice/
-├── types.ts            # Planet, Sign, House, AstrodiceRoll types
-├── constants.ts        # 12 planets, 12 signs, 12 houses with meanings
-├── roll.ts             # Secure random dice rolling
-└── index.ts            # Barrel export
+app/
+├── page.tsx                    # Home (question → roll → result)
+├── layout.tsx                  # Root layout with providers
+├── providers.tsx               # Wagmi + QueryClient
+├── collection/page.tsx         # Placeholder
+├── community/page.tsx          # Placeholder
+└── api/
+    ├── auth/route.ts           # POST - verify JWT
+    ├── readings/route.ts       # GET/POST readings
+    └── readings/[id]/route.ts  # GET/PATCH single reading
 
-lib/db/
-├── schema.ts           # Drizzle schema (users, readings)
-├── client.ts           # Lazy Neon connection
-├── queries.ts          # CRUD operations
-├── index.ts            # Barrel export
-└── migrations/
-    └── 0001_initial.sql
+components/
+├── layout/
+│   ├── cosmic-background.tsx   # Animated star field
+│   ├── header.tsx              # App header
+│   └── nav.tsx                 # Bottom navigation
+├── dice/
+│   ├── dice-animation.tsx      # Rolling animation
+│   └── dice-result.tsx         # Result with keywords
+└── reading/
+    └── interpretation-guide.tsx
 
-components/dice/
-├── dice-animation.tsx  # Rolling animation
-└── dice-result.tsx     # Result display with keywords
-
-components/reading/
-└── interpretation-guide.tsx  # Expandable meanings guide
-
-app/api/
-├── auth/route.ts           # POST - verify JWT, upsert user
-├── readings/route.ts       # GET/POST - list/create readings
-└── readings/[id]/route.ts  # GET/PATCH - single reading ops
+lib/
+├── astrodice/                  # Types, constants, roll logic
+├── db/                         # Schema, client, queries
+├── farcaster/                  # SDK, auth helpers
+└── wagmi/                      # Config
 ```
 
 ---
 
-## Quick Reference
+## Known Issues / Warnings
 
-### Commands
+1. **Next.js workspace warning**: Multiple lockfiles detected
+   - Non-blocking, can silence with turbopack.root config
+
+2. **Peer dependency warnings**: @wagmi/core and typescript versions
+   - Non-blocking, packages work correctly
+
+---
+
+## Quick Commands
+
 ```bash
-pnpm dev      # Dev server
+pnpm dev      # Start dev server (http://localhost:3000)
 pnpm build    # Production build
-pnpm lint     # Lint check
-```
-
-### Phase 3 Dependencies (next)
-```bash
-pnpm add ai @ai-sdk/anthropic
-```
-
-### Environment Variables Needed
-```env
-DATABASE_URL=postgresql://...@neon.tech/astrodice
-ANTHROPIC_API_KEY=sk-ant-...  # For Phase 3
+pnpm lint     # ESLint check
 ```
 
 ---
-
-## Commits This Session
-1. `a216d05` - Add implementation plan and project documentation
-2. `4aa4d38` - Implement Phase 1: Foundation
-3. `9d90170` - Add astrodice core system (types, constants, roll logic)
-4. `80b9099` - Add dice rolling UI with animation and result display
-5. `593f5f5` - Add Neon Postgres database schema and queries
-6. `4776cc5` - Add reading API routes with auth verification
-
----
-
-## Decisions Made
-- Anthropic Claude for AI readings (via Vercel AI SDK)
-- Neon Postgres for database (serverless)
-- Drizzle ORM for type-safe queries
-- Thirdweb for NFT minting
-- Base L2 for all transactions
-- Lazy DB initialization to avoid build errors
-- Secure random via crypto.getRandomValues()
 
 ## Notes
-- Neynar MCP available for reference
-- Neynar API key in .env
-- DATABASE_URL needed before running API routes
-- Run migrations/0001_initial.sql on Neon console
+- Dev server running in background
+- All environment variables configured
+- Database migration needed before API testing
+- Neynar MCP available for Farcaster queries

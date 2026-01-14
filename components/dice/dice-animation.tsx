@@ -5,13 +5,9 @@ import { PLANETS, SIGNS, HOUSES } from "@/lib/astrodice";
 
 interface DiceAnimationProps {
   isRolling: boolean;
-  duration?: number;
 }
 
-export function DiceAnimation({
-  isRolling,
-  duration = 2000,
-}: DiceAnimationProps) {
+export function DiceAnimation({ isRolling }: DiceAnimationProps) {
   const [currentPlanet, setCurrentPlanet] = useState(PLANETS[0]);
   const [currentSign, setCurrentSign] = useState(SIGNS[0]);
   const [currentHouse, setCurrentHouse] = useState(HOUSES[0]);
