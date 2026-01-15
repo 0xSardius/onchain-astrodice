@@ -136,3 +136,20 @@ pnpm add thirdweb
 - /api/ai/generate works without database (for testing)
 - /api/ai/reading and /api/ai/extended require database + auth
 - Payment verification TODO in production routes
+
+---
+
+## Future: Offchain Webapp Version
+
+This codebase can serve as a foundation for a standalone web app (non-Farcaster):
+- Core astrodice logic (`lib/astrodice/`) is framework-agnostic
+- AI reading system (`lib/ai/`) works independently
+- UI components can be adapted for general web use
+- Remove Farcaster SDK/Wagmi dependencies for simpler auth (email, OAuth, etc.)
+- Database schema and API routes are reusable
+
+**Potential adaptations:**
+- Replace Farcaster Quick Auth with NextAuth.js or similar
+- Swap wallet-based payments for Stripe
+- Keep NFT minting optional or remove entirely
+- Add traditional user accounts
