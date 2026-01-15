@@ -8,6 +8,7 @@ import { DiceAnimation } from "@/components/dice/dice-animation";
 import { DiceResult } from "@/components/dice/dice-result";
 import { InterpretationGuide } from "@/components/reading/interpretation-guide";
 import { AiReadingDisplay } from "@/components/reading/ai-reading-display";
+import { MintButton } from "@/components/nft";
 
 type ViewState = "input" | "rolling" | "result";
 
@@ -17,9 +18,11 @@ export default function Home() {
   const [viewState, setViewState] = useState<ViewState>("input");
   const [currentRoll, setCurrentRoll] = useState<AstrodiceRoll | null>(null);
   const [savedQuestion, setSavedQuestion] = useState("");
+  const [readingId, setReadingId] = useState<number | null>(null);
+  const [hasAiReading, setHasAiReading] = useState(false);
 
   const { connect, connectors } = useConnect();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
 
   // Initialize Farcaster SDK and auto-connect wallet
   useEffect(() => {
@@ -38,18 +41,39 @@ export default function Home() {
     init();
   }, [connect, connectors, isConnected]);
 
-  const handleRoll = () => {
+  const handleRoll = async () => {
     if (!question.trim()) return;
 
     // Save question and start rolling
-    setSavedQuestion(question.trim());
+    const trimmedQuestion = question.trim();
+    setSavedQuestion(trimmedQuestion);
     setViewState("rolling");
 
     // After animation, show result
-    setTimeout(() => {
+    setTimeout(async () => {
       const roll = rollAstrodice();
       setCurrentRoll(roll);
       setViewState("result");
+
+      // Save reading to database (fire and forget - don't block UI)
+      try {
+        const response = await fetch("/api/readings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: trimmedQuestion,
+            planet: roll.planet,
+            sign: roll.sign,
+            house: roll.house,
+          }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setReadingId(data.reading.id);
+        }
+      } catch (err) {
+        console.error("Failed to save reading:", err);
+      }
     }, 2500);
   };
 
@@ -57,6 +81,8 @@ export default function Home() {
     setQuestion("");
     setCurrentRoll(null);
     setSavedQuestion("");
+    setReadingId(null);
+    setHasAiReading(false);
     setViewState("input");
   };
 
@@ -127,13 +153,31 @@ export default function Home() {
           <InterpretationGuide roll={currentRoll} />
 
           {/* AI Reading */}
-          <AiReadingDisplay roll={currentRoll} question={savedQuestion} />
+          <AiReadingDisplay
+            roll={currentRoll}
+            question={savedQuestion}
+            onReadingComplete={() => setHasAiReading(true)}
+          />
 
           {/* Secondary CTAs */}
           <div className="flex gap-3">
-            <button className="flex-1 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/80 text-sm hover:bg-white/10 transition-colors">
-              <span className="mr-1">&#x1F3A8;</span> Mint Reading
-            </button>
+            {readingId ? (
+              <MintButton
+                readingId={readingId}
+                roll={currentRoll}
+                question={savedQuestion}
+                username={address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "anon"}
+                hasAiReading={hasAiReading}
+                disabled={!isConnected}
+              />
+            ) : (
+              <button
+                disabled
+                className="flex-1 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm cursor-not-allowed"
+              >
+                Saving...
+              </button>
+            )}
             <button
               onClick={handleAskAgain}
               className="flex-1 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/80 text-sm hover:bg-white/10 transition-colors"
@@ -143,7 +187,9 @@ export default function Home() {
           </div>
 
           <p className="text-xs text-white/40 text-center">
-            Mint your reading as an NFT on Base (gas only ~$0.01)
+            {isConnected
+              ? "Mint your reading as an NFT on Base (gas only ~$0.01)"
+              : "Connect wallet in Farcaster to mint"}
           </p>
         </div>
       </div>
