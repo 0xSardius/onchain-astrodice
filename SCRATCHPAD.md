@@ -4,7 +4,7 @@ Progress tracking for Onchain Astrodice development.
 
 ---
 
-## Current Status: Phase 3 Complete
+## Current Status: Phase 4 Complete
 
 ### Test the App
 Dev server: http://localhost:3000
@@ -12,6 +12,13 @@ Dev server: http://localhost:3000
 2. Click "Cast the Dice"
 3. View result with keywords
 4. Click "Get AI Reading" to generate streaming interpretation
+5. Click "Mint Reading" to preview NFT and mint on Base
+
+### Environment Setup Required for Minting
+```env
+THIRDWEB_SECRET_KEY=your_secret_key
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
+```
 
 ---
 
@@ -39,16 +46,37 @@ Dev server: http://localhost:3000
 - [x] Create AiReadingDisplay component
 - [x] Wire up streaming AI reading in result view
 
-## Phase 4 - NFT & Minting (NEXT)
-- [ ] Deploy Thirdweb contract on Base
-- [ ] Create NFT visual system (SVG composition)
-- [ ] Generate metadata for IPFS
-- [ ] Create mint transaction flow
-- [ ] Wire up "Mint Reading" button
+## Phase 4 - NFT & Minting (COMPLETE)
+- [x] Install thirdweb SDK
+- [x] Create NFT visual system (SVG composition)
+  - Planet color palettes (12 gradients)
+  - Sign geometric patterns (12 borders)
+  - House symbolic glyphs (12 center elements)
+- [x] Generate metadata for IPFS (Thirdweb Storage)
+- [x] Create mint transaction flow with Wagmi
+- [x] Wire up MintButton component
+- [ ] Deploy Thirdweb contract on Base (manual step)
+
+## Phase 5 - Social & Polish (NEXT)
+- [ ] Neynar integration for follows feed
+- [ ] Community page with social readings
+- [ ] Share flow with Farcaster composer
+- [ ] Collection view for minted readings
+- [ ] Polish and error handling
 
 ---
 
 ## Session Log
+
+### 2026-01-14
+- **Phase 4 Complete:**
+  - Installed thirdweb SDK for IPFS storage and minting
+  - Created deterministic NFT visual system (SVG composition)
+  - Built 12 planet palettes, 12 sign patterns, 12 house glyphs
+  - Added metadata generation with Thirdweb IPFS upload
+  - Created MintButton with Wagmi transaction handling
+  - Wired up mint flow in home page
+  - Readings now save to DB on roll for minting
 
 ### 2026-01-13
 - **Phase 3 Complete:**
@@ -85,6 +113,30 @@ components/reading/
 └── ai-reading-display.tsx  # Streaming AI display
 ```
 
+## Files Created (Phase 4)
+
+```
+lib/nft/
+├── colors.ts           # 12 planet color palettes
+├── patterns.ts         # 12 sign SVG border patterns
+├── glyphs.ts           # 12 house symbolic glyphs
+├── svg.ts              # SVG composition logic
+├── metadata.ts         # IPFS upload + metadata generation
+└── index.ts            # Barrel export
+
+components/nft/
+├── nft-visual.tsx      # SVG renderer component
+├── nft-preview.tsx     # Mint preview modal
+├── mint-button.tsx     # Transaction handler
+└── index.ts            # Barrel export
+
+app/api/mint/
+└── route.ts            # POST (prepare) + PATCH (confirm)
+
+types/
+└── nft.ts              # NFT type definitions
+```
+
 ---
 
 ## API Routes Summary
@@ -99,6 +151,8 @@ components/reading/
 | /api/ai/generate | POST | Generate AI reading (testing) |
 | /api/ai/reading | POST | Generate + save AI reading ($2) |
 | /api/ai/extended | POST | Generate extended reading (+$1) |
+| /api/mint | POST | Prepare metadata, upload to IPFS |
+| /api/mint | PATCH | Update DB after successful mint |
 
 ---
 
@@ -108,6 +162,8 @@ components/reading/
 NEYNAR_API_KEY=✓ configured
 DATABASE_URL=✓ configured (Neon Postgres)
 ANTHROPIC_API_KEY=✓ configured
+THIRDWEB_SECRET_KEY=⚠ required for minting
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=⚠ required for minting
 ```
 
 ---
@@ -118,14 +174,6 @@ ANTHROPIC_API_KEY=✓ configured
 pnpm dev      # Start dev server
 pnpm build    # Production build
 pnpm lint     # ESLint check
-```
-
----
-
-## Phase 4 Dependencies (next)
-
-```bash
-pnpm add thirdweb
 ```
 
 ---

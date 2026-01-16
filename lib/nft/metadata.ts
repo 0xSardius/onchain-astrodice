@@ -1,7 +1,7 @@
 // Generate NFT metadata and upload to IPFS via Thirdweb
 import { createThirdwebClient } from "thirdweb";
 import { upload } from "thirdweb/storage";
-import type { AstrodiceRoll, Planet, Sign, House } from "@/lib/astrodice";
+import type { AstrodiceRoll } from "@/lib/astrodice";
 import { generateNftSvg, type NftVisualConfig } from "./svg";
 
 // NFT metadata conforming to OpenSea standard
