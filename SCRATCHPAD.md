@@ -55,7 +55,9 @@ NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
 - [x] Generate metadata for IPFS (Thirdweb Storage)
 - [x] Create mint transaction flow with Wagmi
 - [x] Wire up MintButton component
-- [ ] Deploy Thirdweb contract on Base (manual step)
+- [x] Deploy TokenERC721 contract on Base
+  - Contract: `0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED`
+  - Public minting enabled (MINTER_ROLE granted to everyone)
 
 ## Phase 5 - Social & Polish (NEXT)
 - [ ] Neynar integration for follows feed
@@ -162,8 +164,9 @@ types/
 NEYNAR_API_KEY=✓ configured
 DATABASE_URL=✓ configured (Neon Postgres)
 ANTHROPIC_API_KEY=✓ configured
-THIRDWEB_SECRET_KEY=⚠ required for minting
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=⚠ required for minting
+THIRDWEB_CLIENT_ID=✓ configured
+THIRDWEB_SECRET_KEY=✓ configured
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=✓ 0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED
 ```
 
 ---
