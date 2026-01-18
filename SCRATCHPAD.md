@@ -14,11 +14,11 @@ Dev server: http://localhost:3000
 4. Click "Get AI Reading" to generate streaming interpretation
 5. Click "Mint Reading" to preview NFT and mint on Base
 
-### Environment Setup Required for Minting
-```env
-THIRDWEB_SECRET_KEY=your_secret_key
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
-```
+### Minting Verified
+- [x] SVG generation working (planet colors, sign patterns, house glyphs)
+- [x] IPFS upload working (Thirdweb Storage)
+- [x] Metadata generation working (OpenSea-compliant)
+- [x] Contract deployed and configured on Base
 
 ---
 
