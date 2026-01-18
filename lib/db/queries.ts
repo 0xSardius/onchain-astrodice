@@ -1,4 +1,4 @@
-import { eq, and, lt, desc } from "drizzle-orm";
+import { eq, and, lt, desc, inArray } from "drizzle-orm";
 import { db } from "./client";
 import { users, readings } from "./schema";
 import type { Planet, Sign, House } from "@/lib/astrodice";
@@ -167,8 +167,9 @@ export async function deleteExpiredReadings() {
 // ============================================
 
 export async function getReadingsByFids(fids: number[], limit = 50) {
-  // Get recent public readings from a list of FIDs (for community feed)
-  // Only return minted readings or readings with AI interpretations
+  if (fids.length === 0) return [];
+
+  // Get recent minted readings from a list of FIDs (for community feed)
   return db
     .select({
       id: readings.id,
@@ -183,7 +184,7 @@ export async function getReadingsByFids(fids: number[], limit = 50) {
     .from(readings)
     .where(
       and(
-        // Filter by provided FIDs - we'll handle this in the API
+        inArray(readings.userFid, fids),
         eq(readings.isMinted, true)
       )
     )

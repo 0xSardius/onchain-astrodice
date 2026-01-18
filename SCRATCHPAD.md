@@ -61,15 +61,15 @@ Dev server: http://localhost:3000
 
 ## Phase 5 - Social & Polish (NEXT)
 
-### 5.1 Neynar Integration
-- [ ] Install `@neynar/nodejs-sdk`
-- [ ] Create `lib/neynar/client.ts` (API client)
-- [ ] Create `lib/neynar/queries.ts` (follows, user lookup)
-- [ ] Create `/api/community/route.ts` (follows' readings feed)
+### 5.1 Neynar Integration (COMPLETE)
+- [x] Install `@neynar/nodejs-sdk`
+- [x] Create `lib/neynar/client.ts` (API client)
+- [x] Create `lib/neynar/queries.ts` (follows, user lookup)
+- [x] Create `/api/community/route.ts` (follows' readings feed)
 
-### 5.2 Community Page
-- [ ] Create `app/community/page.tsx`
-- [ ] Build feed component showing follows' readings
+### 5.2 Community Page (COMPLETE)
+- [x] Create `app/community/page.tsx`
+- [x] Build feed component showing follows' readings
 - [ ] Add filtering (recent, popular, by sign/planet)
 - [ ] Pagination or infinite scroll
 
@@ -100,7 +100,15 @@ Dev server: http://localhost:3000
 - Verified mint flow working via API testing
 - Updated CLAUDE.md with current project state
 - Expanded Phase 5 tasks with detailed sub-tasks
-- Ready to begin social features
+- **Phase 5.1 Complete:** Neynar SDK integration
+  - Installed @neynar/nodejs-sdk
+  - Created lib/neynar/client.ts (lazy init pattern)
+  - Created lib/neynar/queries.ts (follows, user lookup)
+  - Created /api/community/route.ts (follows' minted readings)
+- **Phase 5.2 Complete:** Community page
+  - Created ReadingCard component (user info + roll display)
+  - Created ReadingFeed component (loading, error, empty states)
+  - Updated app/community/page.tsx with real feed
 
 ### 2026-01-14
 - **Phase 4 Complete:**
