@@ -60,15 +60,47 @@ Dev server: http://localhost:3000
   - Public minting enabled (MINTER_ROLE granted to everyone)
 
 ## Phase 5 - Social & Polish (NEXT)
-- [ ] Neynar integration for follows feed
-- [ ] Community page with social readings
-- [ ] Share flow with Farcaster composer
-- [ ] Collection view for minted readings
-- [ ] Polish and error handling
+
+### 5.1 Neynar Integration
+- [ ] Install `@neynar/nodejs-sdk`
+- [ ] Create `lib/neynar/client.ts` (API client)
+- [ ] Create `lib/neynar/queries.ts` (follows, user lookup)
+- [ ] Create `/api/community/route.ts` (follows' readings feed)
+
+### 5.2 Community Page
+- [ ] Create `app/community/page.tsx`
+- [ ] Build feed component showing follows' readings
+- [ ] Add filtering (recent, popular, by sign/planet)
+- [ ] Pagination or infinite scroll
+
+### 5.3 Share Flow
+- [ ] Create `components/share/share-button.tsx`
+- [ ] Integrate Farcaster composer SDK
+- [ ] Generate share text with reading summary
+- [ ] Include NFT image if minted
+
+### 5.4 Collection View
+- [ ] Create `app/collection/page.tsx`
+- [ ] Display user's minted NFTs
+- [ ] Show reading details on click
+- [ ] Link to OpenSea/Basescan
+
+### 5.5 Polish & Error Handling
+- [ ] Add loading states throughout
+- [ ] Error boundaries for graceful failures
+- [ ] Toast notifications for actions
+- [ ] Mobile responsiveness audit
+- [ ] Accessibility improvements
 
 ---
 
 ## Session Log
+
+### 2026-01-18
+- Verified mint flow working via API testing
+- Updated CLAUDE.md with current project state
+- Expanded Phase 5 tasks with detailed sub-tasks
+- Ready to begin social features
 
 ### 2026-01-14
 - **Phase 4 Complete:**
@@ -95,6 +127,31 @@ Dev server: http://localhost:3000
 
 ### 2026-01-11
 - Phase 1 & 2 complete
+
+---
+
+## Files to Create (Phase 5)
+
+```
+lib/neynar/
+├── client.ts           # Neynar API client
+├── queries.ts          # Follows, user lookup
+└── index.ts            # Barrel export
+
+app/
+├── community/page.tsx  # Follows' readings feed
+└── collection/page.tsx # User's minted NFTs
+
+components/
+├── share/
+│   └── share-button.tsx  # Farcaster composer
+└── community/
+    ├── reading-feed.tsx  # Feed list component
+    └── reading-card.tsx  # Individual reading card
+
+app/api/community/
+└── route.ts            # GET follows' readings
+```
 
 ---
 

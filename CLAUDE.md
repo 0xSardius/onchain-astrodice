@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Onchain Astrodice is a Farcaster miniapp that generates astrological readings using the astrodice system (Planet + Sign + House), with AI-powered interpretation and NFT collectibility on Base. Users can roll dice, get AI readings ($2), and mint readings as NFTs.
 
-**Current State:** Fresh Next.js 16 scaffold - no features implemented yet. See `IMPLEMENTATION_PLAN.md` for phased development roadmap.
+**Current State:** Phase 4 complete. Core app functional with dice rolling, AI readings, and NFT minting on Base. See `SCRATCHPAD.md` for session progress.
 
 ## Commands
 
@@ -24,23 +24,14 @@ pnpm lint     # Run ESLint
 - **Styling**: Tailwind CSS v4
 - **Package Manager**: pnpm
 
-### Dependencies to Install (Phase 1)
+### Installed Dependencies
+- **Farcaster**: `@farcaster/miniapp-sdk`, `@farcaster/miniapp-wagmi-connector`
+- **Blockchain**: `wagmi`, `viem`, `@tanstack/react-query`, `thirdweb`
+- **Database**: `@neondatabase/serverless`, `drizzle-orm`
+- **AI**: `ai`, `@ai-sdk/anthropic`
+
+### Dependencies to Install (Phase 5)
 ```bash
-pnpm add @farcaster/miniapp-sdk @farcaster/miniapp-wagmi-connector wagmi viem @tanstack/react-query
-```
-
-### Dependencies to Install (Later Phases)
-```bash
-# Phase 2 - Database
-pnpm add @neondatabase/serverless drizzle-orm
-
-# Phase 3 - AI
-pnpm add ai @ai-sdk/anthropic
-
-# Phase 4 - NFT
-pnpm add thirdweb
-
-# Phase 5 - Social
 pnpm add @neynar/nodejs-sdk
 ```
 
@@ -163,30 +154,37 @@ export function DiceRoller({ onRoll }: Props) {
 }
 ```
 
-### Database Queries (Neon)
+### Database Queries (Drizzle ORM)
 ```typescript
-import { neon } from '@neondatabase/serverless'
+import { db } from '@/lib/db'
+import { readings } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
-const sql = neon(process.env.DATABASE_URL!)
-const readings = await sql`SELECT * FROM readings WHERE user_fid = ${fid}`
+// Query readings for a user
+const userReadings = await db.select().from(readings).where(eq(readings.userFid, fid))
+
+// Insert new reading
+const [reading] = await db.insert(readings).values({ ... }).returning()
 ```
 
 ## Environment Variables
 
 ```env
-# Database
-DATABASE_URL=postgresql://...@neon.tech/astrodice
+# Database (Neon Postgres)
+DATABASE_URL=postgresql://...@neon.tech/neondb
 
-# AI
+# AI (Claude)
 ANTHROPIC_API_KEY=sk-ant-...
 
-# Blockchain
-NEXT_PUBLIC_BASE_RPC_URL=https://mainnet.base.org
+# Thirdweb (IPFS storage + contract interaction)
+THIRDWEB_CLIENT_ID=...
 THIRDWEB_SECRET_KEY=...
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
 
-# Neynar (exists)
-NEYNAR_API_KEY=CA2E8A71-29A2-4B0F-9376-717F506E85F9
+# NFT Contract (Base Mainnet)
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED
+
+# Neynar (Farcaster social features)
+NEYNAR_API_KEY=...
 ```
 
 ## Pricing Model
@@ -200,16 +198,44 @@ NEYNAR_API_KEY=CA2E8A71-29A2-4B0F-9376-717F506E85F9
 
 ## Key Documents
 
-- `documentation/onchain-astrodice-prd.md` - Full product requirements (550 lines)
+- `SCRATCHPAD.md` - Session progress and quick reference
+- `documentation/onchain-astrodice-prd.md` - Full product requirements
 - `IMPLEMENTATION_PLAN.md` - Phased development roadmap
 
 ## Current Phase
 
-**Phase 1: Foundation** - Install dependencies, configure Wagmi/Farcaster, create UI shell
+**Phase 5: Social & Polish** - Add social features and polish the app
+
+Completed:
+- Phase 1: Foundation (Farcaster SDK, Wagmi, UI shell)
+- Phase 2: Core Loop (Astrodice types, rolling, DB schema)
+- Phase 3: AI Integration (Claude readings, streaming display)
+- Phase 4: NFT Minting (Thirdweb, IPFS, Base contract)
 
 Next steps:
-1. Install Farcaster SDK and Wagmi dependencies
-2. Create `app/providers.tsx` with provider setup
-3. Create `lib/wagmi/config.ts` with Base chain config
-4. Implement Quick Auth flow
-5. Build cosmic-themed UI shell
+1. Install Neynar SDK for social features
+2. Create community page with follows' readings feed
+3. Add share flow with Farcaster composer
+4. Build collection view for user's minted readings
+5. Polish UI and add error handling
+
+## Deployed Contract
+
+- **Network**: Base Mainnet
+- **Contract**: `0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED`
+- **Type**: TokenERC721 (Thirdweb)
+- **Minting**: Public via `mintTo(address, uri)`
+
+## Future: Offchain Webapp Version
+
+This codebase can serve as a foundation for a standalone web app (non-Farcaster):
+- Core astrodice logic (`lib/astrodice/`) is framework-agnostic
+- AI reading system (`lib/ai/`) works independently
+- UI components can be adapted for general web use
+- Remove Farcaster SDK/Wagmi dependencies for simpler auth
+
+**Potential adaptations:**
+- Replace Farcaster Quick Auth with NextAuth.js
+- Swap wallet-based payments for Stripe
+- Keep NFT minting optional or remove entirely
+- Add traditional user accounts
