@@ -73,17 +73,18 @@ Dev server: http://localhost:3000
 - [ ] Add filtering (recent, popular, by sign/planet)
 - [ ] Pagination or infinite scroll
 
-### 5.3 Share Flow
-- [ ] Create `components/share/share-button.tsx`
-- [ ] Integrate Farcaster composer SDK
-- [ ] Generate share text with reading summary
-- [ ] Include NFT image if minted
+### 5.3 Share Flow (COMPLETE)
+- [x] Create `components/share/share-button.tsx`
+- [x] Integrate Farcaster composer SDK (using existing composeCast)
+- [x] Generate share text with reading summary
+- [x] Wire up ShareButton in result view
 
-### 5.4 Collection View
-- [ ] Create `app/collection/page.tsx`
-- [ ] Display user's minted NFTs
-- [ ] Show reading details on click
-- [ ] Link to OpenSea/Basescan
+### 5.4 Collection View (COMPLETE)
+- [x] Create `/api/collection/route.ts`
+- [x] Create CollectionCard component (NFT visual + details)
+- [x] Create CollectionGrid component (loading/error/empty states)
+- [x] Update `app/collection/page.tsx` with real data
+- [x] Link to OpenSea/Basescan
 
 ### 5.5 Polish & Error Handling
 - [ ] Add loading states throughout
@@ -109,6 +110,15 @@ Dev server: http://localhost:3000
   - Created ReadingCard component (user info + roll display)
   - Created ReadingFeed component (loading, error, empty states)
   - Updated app/community/page.tsx with real feed
+- **Phase 5.3 Complete:** Share flow
+  - Created ShareButton component with share text generation
+  - Integrated with Farcaster composeCast
+  - Added to result view in home page
+- **Phase 5.4 Complete:** Collection view
+  - Created /api/collection route for user's minted readings
+  - Built CollectionCard with NFT visual + OpenSea/Basescan links
+  - Built CollectionGrid with loading/error/empty states
+  - Updated collection page with stats and grid
 
 ### 2026-01-14
 - **Phase 4 Complete:**

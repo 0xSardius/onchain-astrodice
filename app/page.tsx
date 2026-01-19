@@ -9,6 +9,7 @@ import { DiceResult } from "@/components/dice/dice-result";
 import { InterpretationGuide } from "@/components/reading/interpretation-guide";
 import { AiReadingDisplay } from "@/components/reading/ai-reading-display";
 import { MintButton } from "@/components/nft";
+import { ShareButton } from "@/components/share";
 
 type ViewState = "input" | "rolling" | "result";
 
@@ -185,6 +186,14 @@ export default function Home() {
               <span className="mr-1">&#x1F504;</span> Ask Again
             </button>
           </div>
+
+          {/* Share to Farcaster */}
+          <ShareButton
+            roll={currentRoll}
+            question={savedQuestion}
+            readingId={readingId ?? undefined}
+            className="w-full"
+          />
 
           <p className="text-xs text-white/40 text-center">
             {isConnected
