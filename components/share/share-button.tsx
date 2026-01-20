@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { composeCast } from "@/lib/farcaster/auth";
 import { getPlanetInfo, getSignInfo, getHouseInfo } from "@/lib/astrodice";
+import { useToast } from "@/components/ui";
 import type { AstrodiceRoll } from "@/lib/astrodice";
 
 interface ShareButtonProps {
@@ -38,6 +39,7 @@ export function ShareButton({
 }: ShareButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [shared, setShared] = useState(false);
+  const { showToast } = useToast();
 
   const handleShare = async () => {
     setIsSharing(true);
@@ -52,8 +54,10 @@ export function ShareButton({
 
       await composeCast(text, appUrl);
       setShared(true);
+      showToast("Composer opened!", "success");
     } catch (err) {
       console.error("Share failed:", err);
+      showToast("Unable to open composer", "error");
     } finally {
       setIsSharing(false);
     }

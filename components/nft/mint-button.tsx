@@ -8,6 +8,7 @@ import {
 } from "wagmi";
 import type { AstrodiceRoll } from "@/lib/astrodice";
 import { NftPreview } from "./nft-preview";
+import { useToast } from "@/components/ui";
 import type { MintStatus } from "@/types/nft";
 
 // Minimal ERC721 ABI for minting with URI
@@ -48,6 +49,7 @@ export function MintButton({
   const [error, setError] = useState<string | null>(null);
 
   const { address, isConnected } = useAccount();
+  const { showToast } = useToast();
 
   const {
     writeContract,
@@ -66,15 +68,18 @@ export function MintButton({
   useEffect(() => {
     if (writeError) {
       setMintStatus("error");
-      setError(writeError.message || "Transaction failed");
+      const message = writeError.message || "Transaction failed";
+      setError(message);
+      showToast("Mint failed. Please try again.", "error");
     }
-  }, [writeError]);
+  }, [writeError, showToast]);
 
   // Handle transaction confirmation
   useEffect(() => {
     if (isConfirmed && txHash && mintStatus !== "success") {
       setMintStatus("success");
       setShowPreview(false);
+      showToast("Reading minted successfully!", "success");
 
       // Update database with mint info
       fetch("/api/mint", {
@@ -89,7 +94,7 @@ export function MintButton({
 
       onMintSuccess?.(0, txHash);
     }
-  }, [isConfirmed, txHash, mintStatus, readingId, onMintSuccess]);
+  }, [isConfirmed, txHash, mintStatus, readingId, onMintSuccess, showToast]);
 
   const handleOpenPreview = () => {
     if (!isConnected) {

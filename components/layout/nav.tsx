@@ -13,7 +13,7 @@ export function Nav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 py-2 backdrop-blur-md bg-black/40 border-t border-white/10">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-md bg-black/40 border-t border-white/10">
       <div className="max-w-lg mx-auto flex items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
