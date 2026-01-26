@@ -9,8 +9,8 @@ import { useToast } from "@/components/ui";
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const BASE_CHAIN_ID = 8453;
 
-// TODO: Replace with your treasury address
-const TREASURY_ADDRESS = "0x0000000000000000000000000000000000000000";
+// Treasury address for receiving AI reading payments
+const TREASURY_ADDRESS = "0x626522B58b92dAF53596F1378bd25B7653c1fC49";
 
 interface AiReadingDisplayProps {
   roll: AstrodiceRoll;
