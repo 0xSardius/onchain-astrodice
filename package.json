@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.12",
+    "@daimo/pay": "^0.2.3",
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@farcaster/miniapp-wagmi-connector": "^1.1.0",
     "@neondatabase/serverless": "^1.0.2",
+    "@neynar/nodejs-sdk": "^2.7.0",
     "@tanstack/react-query": "^5.90.16",
     "ai": "^6.0.33",
     "drizzle-orm": "^0.45.1",
