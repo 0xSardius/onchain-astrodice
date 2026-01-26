@@ -1,0 +1,27 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="200" fill="#0a0a1a"/>
+
+  <!-- Glow -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0a0a1a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="100" cy="100" r="90" fill="url(#glow)"/>
+
+  <!-- Crystal ball -->
+  <circle cx="100" cy="100" r="60" fill="#1a1a2e" stroke="url(#gradient)" stroke-width="3"/>
+
+  <!-- Symbol -->
+  <text x="100" y="115" text-anchor="middle" font-size="50" fill="url(#gradient)">&#x2609;</text>
+
+  <!-- Sparkle -->
+  <path d="M100 50 L103 60 L113 63 L103 66 L100 76 L97 66 L87 63 L97 60 Z" fill="white" opacity="0.8"/>
+</svg>

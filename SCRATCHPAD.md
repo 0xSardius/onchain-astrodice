@@ -133,7 +133,11 @@ Dev server: http://localhost:3000
   - Updated AiReadingDisplay with payment flow
   - Users now pay $2 USDC before AI reading generates
   - Using pay-demo appId (switch to production later)
-  - TODO: Update TREASURY_ADDRESS with real wallet
+  - Treasury: 0x626522B58b92dAF53596F1378bd25B7653c1fC49
+- **Farcaster Manifest:** Created
+  - public/.well-known/farcaster.json (needs accountAssociation)
+  - public/icon.svg (convert to PNG for production)
+  - public/splash.svg (convert to PNG for production)
 
 ### 2026-01-14
 - **Phase 4 Complete:**
