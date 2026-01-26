@@ -1,7 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { DaimoPayButton } from "@daimo/pay";
 import type { AstrodiceRoll } from "@/lib/astrodice";
+import { useToast } from "@/components/ui";
+
+// USDC on Base
+const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const BASE_CHAIN_ID = 8453;
+
+// TODO: Replace with your treasury address
+const TREASURY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 interface AiReadingDisplayProps {
   roll: AstrodiceRoll;
@@ -16,11 +25,13 @@ export function AiReadingDisplay({
 }: AiReadingDisplayProps) {
   const [aiReading, setAiReading] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const hasReading = !!aiReading;
 
-  const handleGetReading = async () => {
+  const generateReading = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     setAiReading("");
@@ -63,22 +74,41 @@ export function AiReadingDisplay({
       onReadingComplete?.(fullText);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to get reading");
+      showToast("Failed to generate reading", "error");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [question, roll, onReadingComplete, showToast]);
 
-  // If no reading yet and not loading, show the CTA button
-  if (!hasReading && !isLoading) {
+  const handlePaymentCompleted = useCallback(() => {
+    setIsPaid(true);
+    showToast("Payment successful! Generating reading...", "success");
+    generateReading();
+  }, [generateReading, showToast]);
+
+  // If no reading yet and not loading, show the payment button
+  if (!hasReading && !isLoading && !isPaid) {
     return (
       <div className="space-y-3">
-        <button
-          onClick={handleGetReading}
-          className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+        <DaimoPayButton.Custom
+          appId="pay-demo"
+          toAddress={TREASURY_ADDRESS}
+          toChain={BASE_CHAIN_ID}
+          toToken={USDC_BASE}
+          toUnits="2.00"
+          intent="AI Reading"
+          onPaymentCompleted={handlePaymentCompleted}
         >
-          <span className="mr-2">&#x2728;</span>
-          Get AI Reading · $2
-        </button>
+          {({ show }) => (
+            <button
+              onClick={show}
+              className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <span className="mr-2">&#x2728;</span>
+              Get AI Reading · $2
+            </button>
+          )}
+        </DaimoPayButton.Custom>
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
       </div>
     );

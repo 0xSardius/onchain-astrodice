@@ -4,7 +4,7 @@ Progress tracking for Onchain Astrodice development.
 
 ---
 
-## Current Status: Phase 5 Complete
+## Current Status: Phase 5 Complete + Payment Integration
 
 ### Test the App
 Dev server: http://localhost:3000
@@ -125,6 +125,15 @@ Dev server: http://localhost:3000
   - Added ErrorBoundary component wrapping the app
   - Added safe area insets for iOS devices
   - Toast animation with slide-up effect
+
+### 2026-01-25
+- **Payment Integration:** Daimo Pay
+  - Installed @daimo/pay SDK
+  - Added DaimoPayProvider to app providers
+  - Updated AiReadingDisplay with payment flow
+  - Users now pay $2 USDC before AI reading generates
+  - Using pay-demo appId (switch to production later)
+  - TODO: Update TREASURY_ADDRESS with real wallet
 
 ### 2026-01-14
 - **Phase 4 Complete:**
@@ -267,7 +276,10 @@ pnpm lint     # ESLint check
 - Streaming responses for real-time display
 - /api/ai/generate works without database (for testing)
 - /api/ai/reading and /api/ai/extended require database + auth
-- Payment verification TODO in production routes
+- **Payment:** Daimo Pay integration (pay-demo mode)
+  - Users pay $2 USDC on Base before AI reading
+  - Update TREASURY_ADDRESS in components/reading/ai-reading-display.tsx
+  - Get production appId at pay.daimo.com
 
 ---
 
