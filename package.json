@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.12",
-    "@daimo/pay": "^0.2.3",
+    "@daimo/pay": "^1.19.10",
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@farcaster/miniapp-wagmi-connector": "^1.1.0",
     "@neondatabase/serverless": "^1.0.2",
