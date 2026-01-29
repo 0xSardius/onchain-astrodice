@@ -24,7 +24,8 @@ export async function getFollowingFids(fid: number): Promise<number[]> {
     });
 
     for (const follow of response.users) {
-      fids.push(follow.fid);
+      // Follower type has nested user object with the fid
+      fids.push(follow.user.fid);
     }
 
     cursor = response.next?.cursor ?? undefined;
