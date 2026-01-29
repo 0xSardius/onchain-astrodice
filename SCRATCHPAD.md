@@ -126,6 +126,30 @@ Dev server: http://localhost:3000
   - Added safe area insets for iOS devices
   - Toast animation with slide-up effect
 
+### 2026-01-28
+- **Build Fixes for Vercel Deployment:**
+  - Fixed Neynar `Follower` type error - access `follow.user.fid` instead of `follow.fid`
+  - Fixed Daimo Pay chain configuration error - use `getDefaultConfig` from `@daimo/pay`
+  - Wagmi config now uses Daimo's automatic chain setup (includes HyperEVM, Monad, World Chain)
+  - Build currently in progress on Vercel (commit `45a97e3`)
+
+- **Remaining Manifest Issues (TODO next session):**
+  - `public/.well-known/farcaster.json` has placeholder values:
+    - `accountAssociation` needs real values from Warpcast Developer Tools
+    - URLs need to change from `YOUR_DOMAIN` to `onchain-astrodice.vercel.app`
+  - Missing image assets in `public/`:
+    - `icon.png` (200x200px) - app icon
+    - `splash.png` (200x200px) - splash screen
+    - `og-image.png` (1200x630px) - social embeds
+  - Missing `fc:miniapp` meta tag in `app/layout.tsx` for rich Farcaster embeds
+
+- **Next Steps After Build Passes:**
+  1. Create cosmic-themed image assets
+  2. Update manifest with real domain URLs
+  3. Get `accountAssociation` from https://farcaster.xyz/~/developers/mini-apps/manifest
+  4. Add `fc:miniapp` embed meta tag
+  5. Test in Warpcast preview tool
+
 ### 2026-01-25
 - **Payment Integration:** Daimo Pay
   - Installed @daimo/pay SDK
