@@ -1,34 +1,13 @@
-import { http, createConfig } from "wagmi";
-import {
-  arbitrum,
-  base,
-  bsc,
-  celo,
-  gnosis,
-  linea,
-  mainnet,
-  optimism,
-  polygon,
-  scroll,
-} from "wagmi/chains";
+import { createConfig } from "wagmi";
+import { getDefaultConfig } from "@daimo/pay";
 import { farcasterFrame } from "@farcaster/miniapp-wagmi-connector";
 
-// Daimo Pay requires multiple chains for cross-chain payments
-// Base is primary for this app, others are for Daimo Pay compatibility
+// Use Daimo Pay's getDefaultConfig for automatic chain configuration
+// This includes all chains required by Daimo Pay (Base, Arbitrum, Optimism, etc.)
+const daimoConfig = getDefaultConfig({ appName: "Onchain Astrodice" });
+
 export const config = createConfig({
-  chains: [base, mainnet, arbitrum, optimism, polygon, bsc, celo, gnosis, linea, scroll],
-  transports: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-    [arbitrum.id]: http(),
-    [optimism.id]: http(),
-    [polygon.id]: http(),
-    [bsc.id]: http(),
-    [celo.id]: http(),
-    [gnosis.id]: http(),
-    [linea.id]: http(),
-    [scroll.id]: http(),
-  },
+  ...daimoConfig,
   connectors: [farcasterFrame()],
 });
 
