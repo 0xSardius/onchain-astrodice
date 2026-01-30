@@ -24,6 +24,17 @@ export const metadata: Metadata = {
     title: "Onchain Astrodice",
     description: "Divine your path with the stars",
     type: "website",
+    images: [
+      {
+        url: "https://onchain-astrodice.vercel.app/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Onchain Astrodice - Divine your path with the stars",
+      },
+    ],
+  },
+  other: {
+    "fc:miniapp": "https://onchain-astrodice.vercel.app/.well-known/farcaster.json",
   },
 };
 
