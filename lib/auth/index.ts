@@ -1,13 +1,62 @@
 import { NextRequest } from "next/server";
+import { createClient } from "@farcaster/quick-auth";
+
+// Create Quick Auth client for JWT verification
+const quickAuthClient = createClient();
 
 /**
- * Extract FID from Farcaster JWT in Authorization header
+ * Extract and verify FID from Farcaster JWT in Authorization header
+ * Uses official @farcaster/quick-auth library for proper verification
  *
- * Farcaster JWTs can have the FID in different fields:
- * - `sub` (standard JWT subject field)
- * - `fid` (direct field)
- *
- * The FID can be a string or number.
+ * JWT payload structure:
+ * {
+ *   "iat": 1747764819,
+ *   "iss": "https://auth.farcaster.xyz",
+ *   "exp": 1747768419,
+ *   "sub": 6841,  // FID is in 'sub' field
+ *   "aud": "miniapps.farcaster.xyz"
+ * }
+ */
+export async function getFidFromAuthAsync(
+  request: NextRequest
+): Promise<number | null> {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return null;
+  }
+
+  try {
+    const token = authHeader.slice(7);
+
+    // Get the domain from the request for verification
+    const host = request.headers.get("host") || "onchain-astrodice.vercel.app";
+
+    // Verify JWT using official Farcaster library
+    const payload = await quickAuthClient.verifyJwt({
+      token,
+      domain: host,
+    });
+
+    // FID is in the 'sub' field
+    const fid = payload.sub;
+
+    if (typeof fid === "number") {
+      return fid;
+    } else if (typeof fid === "string") {
+      const fidNum = parseInt(fid, 10);
+      return isNaN(fidNum) ? null : fidNum;
+    }
+
+    return null;
+  } catch (err) {
+    console.error("Failed to verify auth token:", err);
+    return null;
+  }
+}
+
+/**
+ * Synchronous version that just decodes without verification
+ * Use getFidFromAuthAsync for proper verification
  */
 export function getFidFromAuth(request: NextRequest): number | null {
   const authHeader = request.headers.get("authorization");
@@ -24,10 +73,11 @@ export function getFidFromAuth(request: NextRequest): number | null {
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
     const payload = JSON.parse(atob(base64));
 
-    // Try different fields where FID might be stored
-    const fid = payload.fid ?? payload.sub ?? payload.userId;
+    // FID is in 'sub' field per Farcaster docs
+    const fid = payload.sub;
 
     if (fid === undefined || fid === null) {
+      console.error("No 'sub' field in JWT payload:", Object.keys(payload));
       return null;
     }
 
@@ -58,9 +108,9 @@ export function getUsernameFromAuth(request: NextRequest): string {
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
     const payload = JSON.parse(atob(base64));
 
-    // Try to get username from various fields
+    // Try to get username, fall back to FID
     const username = payload.username ?? payload.name;
-    const fid = payload.fid ?? payload.sub;
+    const fid = payload.sub;
 
     if (username) {
       return username;
