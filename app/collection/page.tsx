@@ -22,7 +22,24 @@ export default function CollectionPage() {
         setError(null);
 
         const baseUrl = window.location.origin;
-        const response = await sdk.quickAuth.fetch(`${baseUrl}/api/collection`);
+
+        // Get auth token
+        let authHeader = "";
+        try {
+          const { token } = await sdk.quickAuth.getToken();
+          authHeader = `Bearer ${token}`;
+        } catch {
+          // Not in Farcaster context - show empty state
+          setReadings([]);
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await fetch(`${baseUrl}/api/collection`, {
+          headers: {
+            ...(authHeader && { Authorization: authHeader }),
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch collection");
@@ -32,7 +49,6 @@ export default function CollectionPage() {
         setReadings(data.readings || []);
       } catch (err) {
         console.error("Collection fetch error:", err);
-        // Not in Farcaster context or fetch failed - show empty state
         setReadings([]);
       } finally {
         setIsLoading(false);

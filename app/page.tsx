@@ -60,9 +60,22 @@ export default function Home() {
       // Save reading to database (fire and forget - don't block UI)
       try {
         const baseUrl = window.location.origin;
-        const response = await sdk.quickAuth.fetch(`${baseUrl}/api/readings`, {
+
+        // Get auth token from Farcaster SDK
+        let authHeader = "";
+        try {
+          const { token } = await sdk.quickAuth.getToken();
+          authHeader = `Bearer ${token}`;
+        } catch (authErr) {
+          console.error("Failed to get auth token:", authErr);
+        }
+
+        const response = await fetch(`${baseUrl}/api/readings`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(authHeader && { Authorization: authHeader }),
+          },
           body: JSON.stringify({
             question: trimmedQuestion,
             planet: roll.planet,
@@ -70,9 +83,13 @@ export default function Home() {
             house: roll.house,
           }),
         });
+
         if (response.ok) {
           const data = await response.json();
           setReadingId(data.reading.id);
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Failed to save reading:", response.status, errorData);
         }
       } catch (err) {
         console.error("Failed to save reading:", err);

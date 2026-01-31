@@ -4,7 +4,12 @@ Progress tracking for Onchain Astrodice development.
 
 ---
 
-## Current Status: Phase 5 Complete + Payment Integration
+## Current Status: Phase 6 - Production Polish
+
+### Deployed
+- **Live URL**: https://onchain-astrodice.vercel.app
+- **Farcaster Manifest**: Complete with accountAssociation
+- **Contract**: Base mainnet `0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED`
 
 ### Test the App
 Dev server: http://localhost:3000
@@ -93,9 +98,83 @@ Dev server: http://localhost:3000
 - [x] Mobile responsiveness audit
 - [x] Safe area insets for iOS devices
 
+## Phase 6 - Production Polish (IN PROGRESS)
+
+### 6.1 Farcaster Manifest (COMPLETE)
+- [x] Update manifest URLs to production domain
+- [x] Add accountAssociation from Warpcast Developer Tools
+- [x] Generate PNG assets (icon, splash, og-image)
+- [x] Add `fc:miniapp` meta tag to layout
+- [x] Deploy and verify in Warpcast
+
+### 6.2 Daimo Pay Production (TODO)
+- [ ] Register app at pay.daimo.com for production appId
+- [ ] Verify treasury address to remove "untrusted" warning
+- [ ] Update `appId` in `components/reading/ai-reading-display.tsx`
+- Current: Using `pay-demo` appId (shows untrusted warning)
+
+### 6.3 Reading Detail Page (TODO)
+- [ ] Build `/reading/[id]` page
+- [ ] Show full reading with AI text, NFT visual, metadata
+- [ ] Add share/mint actions if not already done
+- [ ] Link from collection and community feeds
+
+### 6.4 Extended Reading UI (TODO)
+- [ ] Add "+$1 Extended Reading" option after AI reading
+- [ ] Wire up `/api/ai/extended` route
+- [ ] Display extended content below base reading
+
+### 6.5 Community Feed Polish (TODO)
+- [ ] Test Neynar API integration end-to-end
+- [ ] Add error recovery / retry logic
+- [ ] Add filtering (by sign/planet/house)
+- [ ] Add pagination or infinite scroll
+
+### 6.6 Backend Hardening (TODO)
+- [ ] Add payment verification before AI generation
+- [ ] Set up expired reading cleanup (cron or Vercel function)
+- [ ] Add rate limiting to API routes
+- [ ] Improve error handling and logging
+
 ---
 
 ## Session Log
+
+### 2026-01-31
+- **Auth Fixes for API Calls:**
+  - Identified issue: API calls returning 401 because no auth token was being sent
+  - Updated all client-side fetches to use `sdk.quickAuth.fetch()`:
+    - `app/page.tsx` - /api/readings POST (save roll)
+    - `components/nft/mint-button.tsx` - /api/mint POST/PATCH
+    - `app/community/page.tsx` - /api/community GET
+    - `app/collection/page.tsx` - /api/collection GET
+- **Added How It Works Modal:**
+  - Created `components/ui/how-it-works-modal.tsx`
+  - Explains astrodice system (Planet/Sign/House meanings)
+  - Shows user journey and pricing breakdown
+  - Added to home page below CTA
+- **Daimo Pay Status:**
+  - Registration requires team outreach (not self-service)
+  - Using `pay-demo` appId for now (shows untrusted warning)
+  - Payment flow works, just has warning banner
+- **Known Issue (IN PROGRESS):**
+  - "Saving..." button still stuck after roll
+  - `sdk.quickAuth.fetch()` may be failing silently
+  - Need to investigate auth flow in Farcaster context
+
+### 2026-01-29
+- **Farcaster Manifest Complete:**
+  - Updated all URLs to `onchain-astrodice.vercel.app`
+  - Added accountAssociation from Warpcast Developer Tools
+  - Shortened subtitle to 30 chars ("Roll dice, divine destiny")
+  - Generated PNG assets from SVGs (icon, splash, og-image)
+  - Added `fc:miniapp` meta tag and OpenGraph image to layout
+  - Created `scripts/convert-images.mjs` for future asset updates
+  - Deployed and verified working in Warpcast
+- **Reviewed User Flow:**
+  - Core loop (question → roll → AI → mint → share) fully functional
+  - Identified gaps: Daimo Pay production setup, reading detail page, extended reading UI
+  - Added Phase 6 tasks to scratchpad
 
 ### 2026-01-18
 - Verified mint flow working via API testing

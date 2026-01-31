@@ -84,15 +84,31 @@ export function MintButton({
 
       // Update database with mint info
       const baseUrl = window.location.origin;
-      sdk.quickAuth.fetch(`${baseUrl}/api/mint`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          readingId,
-          tokenId: 0, // Would need to parse from tx receipt in production
-          txHash,
-        }),
-      }).catch(console.error);
+      (async () => {
+        try {
+          let authHeader = "";
+          try {
+            const { token } = await sdk.quickAuth.getToken();
+            authHeader = `Bearer ${token}`;
+          } catch {
+            // Continue without auth
+          }
+          await fetch(`${baseUrl}/api/mint`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              ...(authHeader && { Authorization: authHeader }),
+            },
+            body: JSON.stringify({
+              readingId,
+              tokenId: 0, // Would need to parse from tx receipt in production
+              txHash,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to update mint status:", err);
+        }
+      })();
 
       onMintSuccess?.(0, txHash);
     }
@@ -120,10 +136,21 @@ export function MintButton({
     try {
       // 1. Call API to prepare metadata and upload to IPFS
       const baseUrl = window.location.origin;
-      const response = await sdk.quickAuth.fetch(`${baseUrl}/api/mint`, {
+
+      // Get auth token
+      let authHeader = "";
+      try {
+        const { token } = await sdk.quickAuth.getToken();
+        authHeader = `Bearer ${token}`;
+      } catch {
+        // Continue without auth - will likely fail but gives better error
+      }
+
+      const response = await fetch(`${baseUrl}/api/mint`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(authHeader && { Authorization: authHeader }),
         },
         body: JSON.stringify({
           readingId,
