@@ -70,8 +70,10 @@ export function getFidFromAuth(request: NextRequest): number | null {
     if (parts.length !== 3) return null;
 
     // Decode JWT payload (base64url -> JSON)
+    // Use Buffer for Node.js compatibility (atob is browser-only)
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const payload = JSON.parse(atob(base64));
+    const jsonString = Buffer.from(base64, "base64").toString("utf-8");
+    const payload = JSON.parse(jsonString);
 
     // FID is in 'sub' field per Farcaster docs
     const fid = payload.sub;
@@ -105,8 +107,10 @@ export function getUsernameFromAuth(request: NextRequest): string {
     const parts = token.split(".");
     if (parts.length !== 3) return "anonymous";
 
+    // Use Buffer for Node.js compatibility
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const payload = JSON.parse(atob(base64));
+    const jsonString = Buffer.from(base64, "base64").toString("utf-8");
+    const payload = JSON.parse(jsonString);
 
     // Try to get username, fall back to FID
     const username = payload.username ?? payload.name;
