@@ -1,27 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getReadingsByFids } from "@/lib/db";
 import { getFollowingFids, getUsersByFids } from "@/lib/neynar";
-
-/**
- * Helper to extract FID from Authorization header
- */
-function getFidFromAuth(request: NextRequest): number | null {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return null;
-  }
-
-  try {
-    const token = authHeader.slice(7);
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    const payload = JSON.parse(atob(parts[1]));
-    return typeof payload.fid === "number" ? payload.fid : null;
-  } catch {
-    return null;
-  }
-}
+import { getFidFromAuth } from "@/lib/auth";
 
 export interface CommunityReading {
   id: number;

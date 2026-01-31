@@ -1,28 +1,8 @@
 import { NextRequest } from "next/server";
 import { streamExtendedReading } from "@/lib/ai";
 import { getReadingById, addExtendedReading } from "@/lib/db";
+import { getFidFromAuth } from "@/lib/auth";
 import type { Planet, Sign, House } from "@/lib/astrodice";
-
-/**
- * Helper to extract FID from Authorization header
- */
-function getFidFromAuth(request: NextRequest): number | null {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return null;
-  }
-
-  try {
-    const token = authHeader.slice(7);
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    const payload = JSON.parse(atob(parts[1]));
-    return typeof payload.fid === "number" ? payload.fid : null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * POST /api/ai/extended

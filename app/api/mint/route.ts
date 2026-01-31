@@ -1,50 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getReadingById, markReadingAsMinted } from "@/lib/db";
 import { uploadNftMetadata } from "@/lib/nft";
+import { getFidFromAuth, getUsernameFromAuth } from "@/lib/auth";
 import type { Planet, Sign, House } from "@/lib/astrodice";
-
-/**
- * Helper to extract FID from Authorization header
- * In production, verify the JWT signature
- */
-function getFidFromAuth(request: NextRequest): number | null {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return null;
-  }
-
-  try {
-    const token = authHeader.slice(7);
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    const payload = JSON.parse(atob(parts[1]));
-    return typeof payload.fid === "number" ? payload.fid : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Extract username from JWT payload
- */
-function getUsernameFromAuth(request: NextRequest): string {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return "anonymous";
-  }
-
-  try {
-    const token = authHeader.slice(7);
-    const parts = token.split(".");
-    if (parts.length !== 3) return "anonymous";
-
-    const payload = JSON.parse(atob(parts[1]));
-    return payload.username || `fid:${payload.fid}`;
-  } catch {
-    return "anonymous";
-  }
-}
 
 /**
  * POST /api/mint
