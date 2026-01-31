@@ -11,10 +11,16 @@
     "description": "Roll cosmic dice, get AI-powered astrological readings, and mint your destiny as NFTs on Base.",
     "iconUrl": "https://onchain-astrodice.vercel.app/icon.png",
     "homeUrl": "https://onchain-astrodice.vercel.app",
+    "imageUrl": "https://onchain-astrodice.vercel.app/og-image.png",
     "splashImageUrl": "https://onchain-astrodice.vercel.app/splash.png",
     "splashBackgroundColor": "#0a0a1a",
+    "buttonTitle": "Cast the Dice",
     "primaryCategory": "entertainment",
     "tags": ["astrology", "nft", "ai", "divination"],
-    "requiredChains": ["eip155:8453"]
+    "requiredChains": ["eip155:8453"],
+    "tagline": "Divine your destiny with cosmic dice",
+    "ogTitle": "Onchain Astrodice",
+    "ogDescription": "Roll cosmic dice, get AI readings, mint your destiny as NFTs",
+    "ogImageUrl": "https://onchain-astrodice.vercel.app/og-image.png"
   }
 }
