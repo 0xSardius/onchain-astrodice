@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createReading, getUserReadings } from "@/lib/db";
+import { createReading, getUserReadings, upsertUser } from "@/lib/db";
 import { getFidFromAuth } from "@/lib/auth";
 import type { Planet, Sign, House } from "@/lib/astrodice";
 
@@ -71,6 +71,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Ensure user exists before creating reading (foreign key constraint)
+    await upsertUser(fid);
 
     const reading = await createReading({
       userFid: fid,
