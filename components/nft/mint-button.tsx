@@ -6,6 +6,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from "wagmi";
+import { sdk } from "@/lib/farcaster/sdk";
 import type { AstrodiceRoll } from "@/lib/astrodice";
 import { NftPreview } from "./nft-preview";
 import { useToast } from "@/components/ui";
@@ -82,7 +83,8 @@ export function MintButton({
       showToast("Reading minted successfully!", "success");
 
       // Update database with mint info
-      fetch("/api/mint", {
+      const baseUrl = window.location.origin;
+      sdk.quickAuth.fetch(`${baseUrl}/api/mint`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -117,7 +119,8 @@ export function MintButton({
 
     try {
       // 1. Call API to prepare metadata and upload to IPFS
-      const response = await fetch("/api/mint", {
+      const baseUrl = window.location.origin;
+      const response = await sdk.quickAuth.fetch(`${baseUrl}/api/mint`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -10,6 +10,7 @@ import { InterpretationGuide } from "@/components/reading/interpretation-guide";
 import { AiReadingDisplay } from "@/components/reading/ai-reading-display";
 import { MintButton } from "@/components/nft";
 import { ShareButton } from "@/components/share";
+import { HowItWorksModal } from "@/components/ui";
 
 type ViewState = "input" | "rolling" | "result";
 
@@ -58,7 +59,8 @@ export default function Home() {
 
       // Save reading to database (fire and forget - don't block UI)
       try {
-        const response = await fetch("/api/readings", {
+        const baseUrl = window.location.origin;
+        const response = await sdk.quickAuth.fetch(`${baseUrl}/api/readings`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -125,11 +127,14 @@ export default function Home() {
             Cast the Dice
           </button>
 
-          <p className="text-xs text-white/40">
-            Free roll includes Planet + Sign + House with keywords.
-            <br />
-            AI-powered interpretation available for $2.
-          </p>
+          <div className="space-y-2">
+            <p className="text-xs text-white/40">
+              Free roll includes Planet + Sign + House with keywords.
+              <br />
+              AI-powered interpretation available for $2.
+            </p>
+            <HowItWorksModal />
+          </div>
         </div>
       </div>
     );

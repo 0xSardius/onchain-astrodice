@@ -15,23 +15,8 @@ export default function CommunityPage() {
         setIsLoading(true);
         setError(null);
 
-        // Get auth token from Farcaster
-        let authHeader = "";
-        try {
-          const { token } = await sdk.quickAuth.getToken();
-          authHeader = `Bearer ${token}`;
-        } catch {
-          // Not in Farcaster context - show empty state
-          setReadings([]);
-          setIsLoading(false);
-          return;
-        }
-
-        const response = await fetch("/api/community?limit=50", {
-          headers: {
-            Authorization: authHeader,
-          },
-        });
+        const baseUrl = window.location.origin;
+        const response = await sdk.quickAuth.fetch(`${baseUrl}/api/community?limit=50`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch community feed");
@@ -41,7 +26,8 @@ export default function CommunityPage() {
         setReadings(data.readings || []);
       } catch (err) {
         console.error("Community feed error:", err);
-        setError("Unable to load community feed. Please try again.");
+        // Not in Farcaster context or fetch failed - show empty state
+        setReadings([]);
       } finally {
         setIsLoading(false);
       }
