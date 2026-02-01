@@ -35,7 +35,7 @@ export function NftPreview({
       />
 
       {/* Modal */}
-      <div className="relative bg-gray-900 rounded-2xl border border-white/10 p-6 max-w-md w-full space-y-6 shadow-2xl">
+      <div className="relative bg-gray-900 rounded-2xl border border-white/10 p-6 max-w-md w-full max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-white">Mint Your Reading</h2>

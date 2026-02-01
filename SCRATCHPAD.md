@@ -390,6 +390,17 @@ pnpm lint     # ESLint check
 
 ---
 
+## Future: x402 Agentic Readings API
+
+Fork this project to create a pay-per-request API for agentic readings:
+- Endpoint: `POST /api/reading` with x402 payment
+- Input: question (optional)
+- Output: roll + AI interpretation
+- Use case: Agents/bots can get astrological guidance programmatically
+- Core logic already modular: `rollAstrodice()`, `streamBaseReading()`, prompts
+
+---
+
 ## Future: Offchain Webapp Version
 
 This codebase can serve as a foundation for a standalone web app (non-Farcaster):
