@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { DaimoPayButton } from "@daimo/pay";
+import { sdk } from "@/lib/farcaster/sdk";
 import type { AstrodiceRoll } from "@/lib/astrodice";
 import { useToast } from "@/components/ui";
 
@@ -15,12 +16,14 @@ const TREASURY_ADDRESS = "0x626522B58b92dAF53596F1378bd25B7653c1fC49";
 interface AiReadingDisplayProps {
   roll: AstrodiceRoll;
   question: string;
+  readingId: number | null;
   onReadingComplete?: (reading: string) => void;
 }
 
 export function AiReadingDisplay({
   roll,
   question,
+  readingId,
   onReadingComplete,
 }: AiReadingDisplayProps) {
   const [aiReading, setAiReading] = useState<string>("");
@@ -32,22 +35,35 @@ export function AiReadingDisplay({
   const hasReading = !!aiReading;
 
   const generateReading = useCallback(async () => {
+    if (!readingId) {
+      setError("Reading not saved yet. Please try again.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setAiReading("");
 
     try {
-      const response = await fetch("/api/ai/generate", {
+      const baseUrl = window.location.origin;
+
+      // Get auth token
+      let authHeader = "";
+      try {
+        const { token } = await sdk.quickAuth.getToken();
+        authHeader = `Bearer ${token}`;
+      } catch {
+        throw new Error("Authentication required");
+      }
+
+      // Use /api/ai/reading which saves to database
+      const response = await fetch(`${baseUrl}/api/ai/reading`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(authHeader && { Authorization: authHeader }),
         },
-        body: JSON.stringify({
-          question,
-          planet: roll.planet,
-          sign: roll.sign,
-          house: roll.house,
-        }),
+        body: JSON.stringify({ readingId }),
       });
 
       if (!response.ok) {
@@ -78,7 +94,7 @@ export function AiReadingDisplay({
     } finally {
       setIsLoading(false);
     }
-  }, [question, roll, onReadingComplete, showToast]);
+  }, [readingId, onReadingComplete, showToast]);
 
   const handlePaymentCompleted = useCallback(() => {
     setIsPaid(true);

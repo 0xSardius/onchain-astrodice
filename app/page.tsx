@@ -179,6 +179,7 @@ export default function Home() {
           <AiReadingDisplay
             roll={currentRoll}
             question={savedQuestion}
+            readingId={readingId}
             onReadingComplete={() => setHasAiReading(true)}
           />
 
