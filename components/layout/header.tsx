@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useAccount } from "wagmi";
 
 export function Header() {
@@ -9,7 +10,13 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3 backdrop-blur-md bg-black/20 border-b border-white/10">
       <div className="max-w-lg mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">&#x2728;</span>
+          <Image
+            src="/astrodice-logo.png"
+            alt="Astrodice"
+            width={32}
+            height={32}
+            className="rounded-lg"
+          />
           <h1 className="text-lg font-semibold text-white">Astrodice</h1>
         </div>
 
