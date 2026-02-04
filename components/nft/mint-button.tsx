@@ -12,10 +12,10 @@ import { NftPreview } from "./nft-preview";
 import { useToast } from "@/components/ui";
 import type { MintStatus } from "@/types/nft";
 
-// Minimal ERC721 ABI for minting with URI
+// ABI for AstrodiceNFT public mint function
 const NFT_ABI = [
   {
-    name: "mintTo",
+    name: "mint",
     type: "function",
     stateMutability: "nonpayable",
     inputs: [
@@ -165,13 +165,19 @@ export function MintButton({
 
       const { mintParams, contractAddress } = await response.json();
 
-      // 2. Execute mint transaction
+      // 2. Execute mint transaction (user pays gas)
       setMintStatus("confirming");
+
+      console.log("Mint params:", {
+        contract: contractAddress,
+        to: mintParams.to,
+        uri: mintParams.uri,
+      });
 
       writeContract({
         address: contractAddress as `0x${string}`,
         abi: NFT_ABI,
-        functionName: "mintTo",
+        functionName: "mint",
         args: [mintParams.to as `0x${string}`, mintParams.uri],
       });
     } catch (err) {

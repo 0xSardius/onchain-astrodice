@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Onchain Astrodice is a Farcaster miniapp that generates astrological readings using the astrodice system (Planet + Sign + House), with AI-powered interpretation and NFT collectibility on Base. Users can roll dice, get AI readings ($2), and mint readings as NFTs.
 
-**Current State:** Phase 6 - Production Polish. App is deployed and functional. Core flow (roll → pay → AI reading → save) works. Minting requires contract permission fix. See `SCRATCHPAD.md` for detailed session progress.
+**Current State:** Phase 6 - Production Polish. App is deployed and functional. Core flow (roll → AI reading → mint) works. New public-mint contract ready to deploy. See `SCRATCHPAD.md` for detailed session progress.
 
 **Live URL:** https://onchain-astrodice.vercel.app
 
@@ -137,8 +137,15 @@ const { isConnected, address } = useAccount()
 
 1. **On Roll:** Upsert user (FK constraint), insert reading with `expires_at = NOW() + 24h`
 2. **On AI Purchase:** Daimo Pay processes $2, then generate + save AI reading
-3. **On Mint:** Upload metadata to IPFS, mint NFT, set `is_minted = true`
+3. **On Mint:** Upload metadata to IPFS, server mints NFT (gasless for user), set `is_minted = true`
 4. **Cleanup:** Delete unminted readings where `expires_at < NOW()`
+
+## NFT Minting
+
+Uses a simple custom ERC721 contract (`contracts/AstrodiceNFT.sol`) with public minting:
+- Anyone can call `mint(to, uri)` - no roles or permissions needed
+- User pays gas (~$0.01-0.05 on Base)
+- Contract uses OpenZeppelin's battle-tested ERC721 implementation
 
 ## Environment Variables
 
@@ -149,12 +156,12 @@ DATABASE_URL=postgresql://...@neon.tech/neondb
 # AI (Claude)
 ANTHROPIC_API_KEY=sk-ant-...
 
-# Thirdweb (IPFS storage + contract interaction)
+# Thirdweb (IPFS storage only)
 THIRDWEB_CLIENT_ID=...
 THIRDWEB_SECRET_KEY=...
 
-# NFT Contract (Base Mainnet)
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED
+# NFT Contract (Base Mainnet) - deploy AstrodiceNFT.sol and update
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=0x...
 
 # Neynar (Farcaster social features)
 NEYNAR_API_KEY=...
@@ -186,20 +193,16 @@ NEYNAR_API_KEY=...
 - [x] Database saving (user upsert before reading insert)
 
 ### In Progress / Next Steps
-1. **[BLOCKER] NFT Minting Permission** - Grant MINTER_ROLE on Thirdweb contract
-   - Contract: `0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED`
-   - Grant MINTER_ROLE to `0x0000...0000` (address zero) for public minting
+1. **[ACTION] Deploy AstrodiceNFT** - Deploy `contracts/AstrodiceNFT.sol` to Base via Remix
 2. **Daimo Pay Production** - Contact Daimo for production appId (currently using `pay-demo`)
 3. **Extended Reading UI** - Add +$1 option after AI reading
 4. **Reading Detail Page** - Build `/reading/[id]` page
 
-## Deployed Contract
+## NFT Contract
 
 - **Network**: Base Mainnet
-- **Contract**: `0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED`
-- **Type**: TokenERC721 (Thirdweb)
-- **Minting**: Requires MINTER_ROLE (needs to grant to address(0) for public minting)
-- **Dashboard**: https://thirdweb.com/base/0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED
+- **Contract**: Deploy `contracts/AstrodiceNFT.sol` (simple public mint ERC721)
+- **Minting**: Public - anyone can call `mint(to, uri)`, user pays gas
 
 ## Key Learnings / Gotchas
 

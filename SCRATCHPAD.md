@@ -140,6 +140,25 @@ Dev server: http://localhost:3000
 
 ## Session Log
 
+### 2026-02-03
+- **Simple Public Mint Contract:**
+  - Problem: Thirdweb TokenERC721 requires MINTER_ROLE, doesn't allow public minting
+  - Solution: Deploy custom ERC721 with public `mint()` function
+  - Created `contracts/AstrodiceNFT.sol` - minimal, secure, OpenZeppelin-based
+  - Updated `MintButton` to call `mint(to, uri)` instead of `mintTo`
+  - **Deployment needed**: See instructions below
+  - Benefits: Anyone can mint, user pays gas (~$0.01), no admin complexity
+
+#### Deploy AstrodiceNFT Contract
+1. Go to [Remix IDE](https://remix.ethereum.org)
+2. Create new file `AstrodiceNFT.sol`, paste contract from `contracts/AstrodiceNFT.sol`
+3. In Compiler tab: Select 0.8.20, enable optimization (200 runs)
+4. In Deploy tab:
+   - Environment: "Injected Provider" (connect wallet to Base)
+   - Select `AstrodiceNFT` contract
+   - Click Deploy
+5. Copy deployed address, update `NEXT_PUBLIC_NFT_CONTRACT_ADDRESS` in `.env`
+
 ### 2026-01-31
 - **Auth Fixes for API Calls:**
   - Identified issue: API calls returning 401 because no auth token was being sent
@@ -363,7 +382,7 @@ DATABASE_URL=✓ configured (Neon Postgres)
 ANTHROPIC_API_KEY=✓ configured
 THIRDWEB_CLIENT_ID=✓ configured
 THIRDWEB_SECRET_KEY=✓ configured
-NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=✓ 0x58A2ED2b91Fa02006C8611F155d73ecb6693ECED
+NEXT_PUBLIC_NFT_CONTRACT_ADDRESS=<update after deploying AstrodiceNFT>
 ```
 
 ---
