@@ -24,7 +24,6 @@
     "ogImageUrl": "https://onchain-astrodice.vercel.app/astrodice-logo.png",
     "screenshotUrls": ["https://onchain-astrodice.vercel.app/astrodice-logo.png"],
     "heroImageUrl": "https://onchain-astrodice.vercel.app/astrodice-logo.png",
-    "webhookUrl": "https://onchain-astrodice.vercel.app/api/webhook",
     "castShareUrl": "https://onchain-astrodice.vercel.app"
   }
 }
