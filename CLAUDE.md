@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Onchain Astrodice is a Farcaster miniapp that generates astrological readings using the astrodice system (Planet + Sign + House), with AI-powered interpretation and NFT collectibility on Base. Users can roll dice, get AI readings ($2), and mint readings as NFTs.
 
-**Current State:** Phase 6 - Production Polish. App is deployed and functional. Core flow (roll → AI reading → mint) works. New public-mint contract ready to deploy. See `SCRATCHPAD.md` for detailed session progress.
+**Current State:** MVP Complete. Full flow working: roll → AI reading ($2 via Daimo Pay) → mint NFT (gas only). Remaining: manifest PNG assets, visual polish. See `SCRATCHPAD.md` for detailed session progress.
 
 **Live URL:** https://onchain-astrodice.vercel.app
 
@@ -192,17 +192,25 @@ NEYNAR_API_KEY=...
 - [x] Auth flow (JWT parsing with correct `sub` field)
 - [x] Database saving (user upsert before reading insert)
 
-### In Progress / Next Steps
-1. **[ACTION] Deploy AstrodiceNFT** - Deploy `contracts/AstrodiceNFT.sol` to Base via Remix
+### MVP Complete
+- [x] Public minting via custom AstrodiceNFT contract
+- [x] Full flow: roll → AI reading ($2) → mint (gas only)
+
+### Remaining Tasks
+1. **Manifest PNGs** - Fix/replace icon.png, splash.png, og-image.png
 2. **Daimo Pay Production** - Contact Daimo for production appId (currently using `pay-demo`)
-3. **Extended Reading UI** - Add +$1 option after AI reading
-4. **Reading Detail Page** - Build `/reading/[id]` page
+
+### Future Refinements
+- **NFT Visual Style** - Refine SVG composition, colors, typography
+- **App UI Polish** - Improve animations, loading states, mobile experience
+- **Extended Reading UI** - Add +$1 option after AI reading
+- **Reading Detail Page** - Build `/reading/[id]` page
 
 ## NFT Contract
 
 - **Network**: Base Mainnet
-- **Contract**: Deploy `contracts/AstrodiceNFT.sol` (simple public mint ERC721)
-- **Minting**: Public - anyone can call `mint(to, uri)`, user pays gas
+- **Contract**: `0x81eb3C10761E4a7e046AB500b99C864b128dbFfC` (AstrodiceNFT)
+- **Minting**: Public - anyone can call `mint(to, uri)`, user pays gas (~$0.01)
 
 ## Key Learnings / Gotchas
 
@@ -211,6 +219,9 @@ NEYNAR_API_KEY=...
 3. **Foreign key constraints** - Must `upsertUser()` before `createReading()`
 4. **Daimo Pay peer deps** - Expects wagmi v2, we use v3. Works but shows warnings.
 5. **Manifest limits** - `tagline` max 30 chars, `subtitle` max 30 chars
+6. **Thirdweb contract limitations** - TokenERC721 requires MINTER_ROLE; deployed custom contract instead
+7. **Verify contracts on Basescan** - Use Remix's verification plugin; helps debug transaction failures
+8. **Push before testing** - Vercel runs deployed code, not local changes
 
 ## Future Ideas
 
