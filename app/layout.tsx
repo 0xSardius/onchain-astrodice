@@ -16,6 +16,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Farcaster Mini App embed configuration
+const fcEmbed = {
+  version: "1",
+  imageUrl: "https://onchain-astrodice.vercel.app/astrodice-logo.png",
+  button: {
+    title: "Cast the Dice",
+    action: {
+      type: "launch_miniapp",
+      name: "Onchain Astrodice",
+      url: "https://onchain-astrodice.vercel.app",
+      splashImageUrl: "https://onchain-astrodice.vercel.app/astrodice-logo.png",
+      splashBackgroundColor: "#0a0a1a",
+    },
+  },
+};
+
 export const metadata: Metadata = {
   title: "Onchain Astrodice",
   description:
@@ -26,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://onchain-astrodice.vercel.app/og-image.png",
+        url: "https://onchain-astrodice.vercel.app/astrodice-logo.png",
         width: 1200,
         height: 630,
         alt: "Onchain Astrodice - Divine your path with the stars",
@@ -34,7 +50,7 @@ export const metadata: Metadata = {
     ],
   },
   other: {
-    "fc:miniapp": "https://onchain-astrodice.vercel.app/.well-known/farcaster.json",
+    "fc:miniapp": JSON.stringify(fcEmbed),
   },
 };
 
