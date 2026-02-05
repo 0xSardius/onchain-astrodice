@@ -168,12 +168,6 @@ export function MintButton({
       // 2. Execute mint transaction (user pays gas)
       setMintStatus("confirming");
 
-      console.log("Mint params:", {
-        contract: contractAddress,
-        to: mintParams.to,
-        uri: mintParams.uri,
-      });
-
       writeContract({
         address: contractAddress as `0x${string}`,
         abi: NFT_ABI,

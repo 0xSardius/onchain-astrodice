@@ -21,11 +21,14 @@ interface AiReadingDisplayProps {
 }
 
 export function AiReadingDisplay({
-  roll,
-  question,
+  roll: _roll,
+  question: _question,
   readingId,
   onReadingComplete,
 }: AiReadingDisplayProps) {
+  // Note: roll and question passed for potential future use (e.g., display in UI)
+  void _roll;
+  void _question;
   const [aiReading, setAiReading] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isPaid, setIsPaid] = useState(false);

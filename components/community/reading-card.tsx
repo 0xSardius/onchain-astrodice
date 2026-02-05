@@ -46,6 +46,7 @@ export function ReadingCard({ reading }: ReadingCardProps) {
       {/* User header */}
       <div className="flex items-center gap-3">
         {reading.pfpUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={reading.pfpUrl}
             alt={reading.username}
