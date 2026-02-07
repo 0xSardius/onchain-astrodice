@@ -5,12 +5,36 @@ import {
   useAccount,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useSwitchChain,
 } from "wagmi";
+import { base } from "viem/chains";
 import { sdk } from "@/lib/farcaster/sdk";
 import type { AstrodiceRoll } from "@/lib/astrodice";
 import { NftPreview } from "./nft-preview";
 import { useToast } from "@/components/ui";
 import type { MintStatus } from "@/types/nft";
+
+/** Parse viem/wagmi errors into user-friendly messages */
+function parseMintError(error: Error): string {
+  const msg = error.message.toLowerCase();
+  if (
+    msg.includes("insufficient funds") ||
+    msg.includes("not enough") ||
+    msg.includes("exceeds the balance")
+  ) {
+    return "Not enough ETH on Base for gas. Please bridge ETH to Base and try again.";
+  }
+  if (msg.includes("user rejected") || msg.includes("user denied")) {
+    return "Transaction was cancelled.";
+  }
+  if (msg.includes("chain mismatch") || msg.includes("chainid")) {
+    return "Wrong network. Please switch to Base and try again.";
+  }
+  if (msg.includes("nonce")) {
+    return "Transaction conflict. Please wait a moment and try again.";
+  }
+  return "Mint failed. Please try again.";
+}
 
 // ABI for AstrodiceNFT public mint function
 const NFT_ABI = [
@@ -49,7 +73,8 @@ export function MintButton({
   const [mintStatus, setMintStatus] = useState<MintStatus>("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
   const { showToast } = useToast();
 
   const {
@@ -69,9 +94,9 @@ export function MintButton({
   useEffect(() => {
     if (writeError) {
       setMintStatus("error");
-      const message = writeError.message || "Transaction failed";
+      const message = parseMintError(writeError);
       setError(message);
-      showToast("Mint failed. Please try again.", "error");
+      showToast(message, "error");
     }
   }, [writeError, showToast]);
 
@@ -134,7 +159,18 @@ export function MintButton({
     setError(null);
 
     try {
-      // 1. Call API to prepare metadata and upload to IPFS
+      // 1. Ensure wallet is on Base
+      if (chainId !== base.id) {
+        try {
+          await switchChainAsync({ chainId: base.id });
+        } catch {
+          setMintStatus("error");
+          setError("Please switch your wallet to Base to mint.");
+          return;
+        }
+      }
+
+      // 2. Call API to prepare metadata and upload to IPFS
       const baseUrl = window.location.origin;
 
       // Get auth token
@@ -165,10 +201,11 @@ export function MintButton({
 
       const { mintParams, contractAddress } = await response.json();
 
-      // 2. Execute mint transaction (user pays gas)
+      // 3. Execute mint transaction on Base (user pays gas)
       setMintStatus("confirming");
 
       writeContract({
+        chainId: base.id,
         address: contractAddress as `0x${string}`,
         abi: NFT_ABI,
         functionName: "mint",
@@ -176,7 +213,9 @@ export function MintButton({
       });
     } catch (err) {
       setMintStatus("error");
-      setError(err instanceof Error ? err.message : "Mint failed");
+      setError(
+        err instanceof Error ? parseMintError(err) : "Mint failed"
+      );
     }
   };
 
